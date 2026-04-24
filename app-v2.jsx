@@ -231,7 +231,7 @@ function Sidebar({ activeView, onNav }) {
           <defs>
             <linearGradient id="lg2" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0%" stopColor="var(--accent)" />
-              <stop offset="100%" stopColor="oklch(80% 0.15 130)" />
+              <stop offset="100%" stopColor="oklch(80% 0.15 115)" />
             </linearGradient>
           </defs>
           <path d="M 6 32 C 6 18, 14 6, 28 6 L 34 6 C 34 20, 26 34, 12 34 L 6 34 Z" fill="url(#lg2)" />
@@ -260,7 +260,7 @@ function Sidebar({ activeView, onNav }) {
                   style={{
                     display:'flex', alignItems:'center', gap:10,
                     padding:'8px 10px', borderRadius:10, fontSize:13,
-                    background: isActive ? 'oklch(94% 0.015 125 / 0.7)' : 'transparent',
+                    background: isActive ? 'oklch(94% 0.015 115 / 0.7)' : 'transparent',
                     color: isActive ? 'var(--ink)' : 'var(--ink-2)',
                     fontWeight: isActive ? 600 : 400,
                     textAlign:'left', width:'100%',
@@ -358,7 +358,7 @@ function Header({ viewMeta }) {
                 style={{
                   display:'block', width:'100%', textAlign:'left',
                   padding:'8px 10px', borderRadius:8, fontSize:13,
-                  background: r === dateRange ? 'oklch(94% 0.015 125 / 0.5)' : 'transparent',
+                  background: r === dateRange ? 'oklch(94% 0.015 115 / 0.5)' : 'transparent',
                   color:'var(--ink)', fontWeight: r === dateRange ? 600 : 400,
                   cursor:'pointer',
                 }}>
@@ -384,7 +384,7 @@ function Header({ viewMeta }) {
                 style={{
                   display:'block', width:'100%', textAlign:'left',
                   padding:'8px 10px', borderRadius:8, fontSize:13,
-                  background: o === compare ? 'oklch(94% 0.015 125 / 0.5)' : 'transparent',
+                  background: o === compare ? 'oklch(94% 0.015 115 / 0.5)' : 'transparent',
                   color:'var(--ink)', fontWeight: o === compare ? 600 : 400,
                   cursor:'pointer',
                 }}>
@@ -565,8 +565,8 @@ function OverviewView({ selectedKpi, setSelectedKpi }) {
 }
 
 function InsightsPanel({ insights, delay=0 }) {
-  const toneBg = { good:'oklch(94% 0.15 105 / 0.18)', warn:'oklch(80% 0.02 170 / 0.35)', info:'oklch(70% 0.015 180 / 0.3)' };
-  const toneBd = { good:'oklch(94% 0.18 105 / 0.5)',  warn:'oklch(60% 0.015 170 / 0.4)', info:'oklch(55% 0.015 180 / 0.35)' };
+  const toneBg = { good:'oklch(94% 0.15 115 / 0.18)', warn:'oklch(80% 0.02 170 / 0.35)', info:'oklch(70% 0.015 170 / 0.3)' };
+  const toneBd = { good:'oklch(94% 0.18 115 / 0.5)',  warn:'oklch(60% 0.015 170 / 0.4)', info:'oklch(55% 0.015 170 / 0.35)' };
   const toneIc = { good:'check', warn:'warn', info:'info' };
   return (
     <Panel delay={delay}>
@@ -859,21 +859,21 @@ function App() {
     r.setProperty('--lg-sheen-angle', `${tweaks.liquidGlassSheenAngle}deg`);
     document.documentElement.dataset.lg = tweaks.liquidGlass ? 'on' : 'off';
     if (tweaks.inkMode === 'light') {
-      r.setProperty('--ink', 'oklch(98% 0.004 230)');
-      r.setProperty('--ink-2', 'oklch(92% 0.005 230)');
-      r.setProperty('--ink-soft', 'oklch(88% 0.005 230 / 0.85)');
-      r.setProperty('--tick', 'oklch(98% 0.004 200 / 0.9)');
-      r.setProperty('--tick-dim', 'oklch(98% 0.004 200 / 0.45)');
-      r.setProperty('--line', 'oklch(95% 0.004 200 / 0.25)');
-      r.setProperty('--line-2', 'oklch(95% 0.004 200 / 0.45)');
+      r.setProperty('--ink', 'oklch(98% 0.004 170)');
+      r.setProperty('--ink-2', 'oklch(92% 0.005 170)');
+      r.setProperty('--ink-soft', 'oklch(88% 0.005 170 / 0.85)');
+      r.setProperty('--tick', 'oklch(98% 0.004 170 / 0.9)');
+      r.setProperty('--tick-dim', 'oklch(98% 0.004 170 / 0.45)');
+      r.setProperty('--line', 'oklch(95% 0.004 170 / 0.25)');
+      r.setProperty('--line-2', 'oklch(95% 0.004 170 / 0.45)');
     } else {
-      r.setProperty('--ink', 'oklch(22% 0.01 230)');
-      r.setProperty('--ink-2', 'oklch(32% 0.01 230)');
-      r.setProperty('--ink-soft', 'oklch(42% 0.01 230 / 0.95)');
-      r.setProperty('--tick', 'oklch(94% 0.004 200 / 0.85)');
-      r.setProperty('--tick-dim', 'oklch(94% 0.004 200 / 0.4)');
-      r.setProperty('--line', 'oklch(55% 0.008 200 / 0.22)');
-      r.setProperty('--line-2', 'oklch(55% 0.008 200 / 0.4)');
+      r.setProperty('--ink', 'oklch(22% 0.01 170)');
+      r.setProperty('--ink-2', 'oklch(32% 0.01 170)');
+      r.setProperty('--ink-soft', 'oklch(42% 0.01 170 / 0.95)');
+      r.setProperty('--tick', 'oklch(94% 0.004 170 / 0.85)');
+      r.setProperty('--tick-dim', 'oklch(94% 0.004 170 / 0.4)');
+      r.setProperty('--line', 'oklch(55% 0.008 170 / 0.22)');
+      r.setProperty('--line-2', 'oklch(55% 0.008 170 / 0.4)');
     }
   }, [tweaks]);
 
@@ -886,7 +886,7 @@ function App() {
     <div style={{
       minHeight:'100vh',
       background:`
-        radial-gradient(ellipse 900px 600px at 80% 20%, oklch(70% 0.025 105 / 0.35), transparent 60%),
+        radial-gradient(ellipse 900px 600px at 80% 20%, oklch(70% 0.025 115 / 0.35), transparent 60%),
         radial-gradient(ellipse 700px 500px at 15% 90%, oklch(65% 0.02 170 / 0.3), transparent 60%),
         var(--bg-outer)
       `,

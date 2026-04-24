@@ -101,7 +101,7 @@ function Tooltip({ hoverIdx, series, xLabel, svg, px, width }) {
       left: isNearRight ? 'auto' : leftPx + 10,
       right: isNearRight ? (rect.width - leftPx + 10) : 'auto',
       top: 10,
-      background:'oklch(25% 0.01 230 / 0.92)',
+      background:'oklch(25% 0.01 170 / 0.92)',
       border:'1px solid oklch(100% 0 0 / 0.15)',
       borderRadius:10,
       padding:'8px 10px',
@@ -109,7 +109,7 @@ function Tooltip({ hoverIdx, series, xLabel, svg, px, width }) {
       pointerEvents:'none',
       backdropFilter:'blur(10px)',
       fontSize:11,
-      color:'oklch(98% 0.004 230)',
+      color:'oklch(98% 0.004 170)',
       zIndex:10,
     }}>
       <div className="mono" style={{ fontSize:10, opacity:0.7, marginBottom:4 }}>{xLabel}</div>
@@ -212,11 +212,11 @@ function StackedTooltip({ group, stackKeys, label, svg, groupW, padL, width, idx
       left: isNearRight ? 'auto' : cx + 10,
       right: isNearRight ? (rect.width - cx + 10) : 'auto',
       top: 10,
-      background:'oklch(25% 0.01 230 / 0.92)',
+      background:'oklch(25% 0.01 170 / 0.92)',
       border:'1px solid oklch(100% 0 0 / 0.15)',
       borderRadius:10, padding:'8px 10px', minWidth:140,
       pointerEvents:'none', backdropFilter:'blur(10px)',
-      fontSize:11, color:'oklch(98% 0.004 230)', zIndex:10,
+      fontSize:11, color:'oklch(98% 0.004 170)', zIndex:10,
     }}>
       <div className="mono" style={{ fontSize:10, opacity:0.7, marginBottom:4 }}>{label}</div>
       {stackKeys.map((k, i) => (
