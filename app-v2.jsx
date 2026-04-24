@@ -25,7 +25,7 @@ const MER_SERIES = [
 const REV_SPEND = [
   { key:'Revenue', color:'var(--accent)', glow:true,
     values:[22000,28000,34000,38000,42000,45000,48000,52000,58000,62000,65000,70000] },
-  { key:'Total Spend', color:'oklch(78% 0.03 40)', dashed:true,
+  { key:'Total Spend', color:'#fff', dashed:true,
     values:[14000,16000,18000,19000,20000,21000,22000,24000,25000,25500,26000,26500] },
 ];
 const STACKED = WEEKS.map((w,i) => ({
@@ -344,7 +344,7 @@ function RevenuePanel() {
             Revenue
           </span>
           <span style={{ display:'flex', alignItems:'center', gap:5 }}>
-            <span style={{ width:14, height:2, background:'oklch(78% 0.03 40)', borderRadius:1, backgroundImage:'repeating-linear-gradient(90deg, oklch(78% 0.03 40), oklch(78% 0.03 40) 3px, transparent 3px, transparent 6px)' }}/>
+            <span style={{ width:14, height:2, background:'#fff', borderRadius:1, backgroundImage:'repeating-linear-gradient(90deg, #fff, #fff 3px, transparent 3px, transparent 6px)' }}/>
             Total Spend
           </span>
         </div>
