@@ -59,9 +59,9 @@ const CHANNEL_CONTRIB = WEEKS.map((w,i) => ({
   }
 }));
 const SATURATION_CURVES = [
-  { key:'Meta',    color:'oklch(85% 0.18 260)',
+  { key:'Meta',    color:'oklch(88% 0.03 170)',
     values:[0,0.5,0.95,1.4,1.8,2.2,2.5,2.8,3.0,3.1,3.15,3.18] },
-  { key:'Google',  color:'oklch(85% 0.18 40)',
+  { key:'Google',  color:'oklch(62% 0.03 170)',
     values:[0,0.4,0.75,1.0,1.15,1.2,1.22,1.23,1.235,1.24,1.24,1.24] },
   { key:'TikTok',  color:'var(--accent)', glow:true,
     values:[0,0.5,1.0,1.5,2.0,2.5,2.8,2.9,2.95,2.98,3.0,3.0] },
@@ -132,14 +132,21 @@ const EXP_INSIGHTS = [
 
 // ───── Data: Connections ─────────────────────────────────────────
 const CONNECTIONS = [
-  { platform:'Shopify',    status:'connected', lastSync:'2 min ago',  dataPoints:'1,847 orders',  hue:140, icon:'Sh' },
-  { platform:'Meta Ads',   status:'connected', lastSync:'5 min ago',  dataPoints:'$18.2K spend',  hue:260, icon:'M' },
-  { platform:'Google Ads', status:'connected', lastSync:'6 min ago',  dataPoints:'$15.8K spend',  hue:40,  icon:'G' },
-  { platform:'TikTok',     status:'connected', lastSync:'4 min ago',  dataPoints:'$12.4K spend',  hue:0,   icon:'T' },
-  { platform:'GA4',        status:'connected', lastSync:'8 min ago',  dataPoints:'28,491 sessions', hue:200, icon:'GA' },
-  { platform:'Amazon Ads', status:'error',     lastSync:'3 days ago', dataPoints:'Token expired',  hue:30,  icon:'Am' },
-  { platform:'Klaviyo',    status:'disconnected', lastSync:'—',        dataPoints:'Not connected',  hue:280, icon:'K' },
+  { platform:'Shopify',    status:'connected', lastSync:'2 min ago',  dataPoints:'1,847 orders',  tier:'accent',   icon:'Sh' },
+  { platform:'Meta Ads',   status:'connected', lastSync:'5 min ago',  dataPoints:'$18.2K spend',  tier:'sage-1',   icon:'M' },
+  { platform:'Google Ads', status:'connected', lastSync:'6 min ago',  dataPoints:'$15.8K spend',  tier:'sage-2',   icon:'G' },
+  { platform:'TikTok',     status:'connected', lastSync:'4 min ago',  dataPoints:'$12.4K spend',  tier:'accent',   icon:'T' },
+  { platform:'GA4',        status:'connected', lastSync:'8 min ago',  dataPoints:'28,491 sessions', tier:'sage-1', icon:'GA' },
+  { platform:'Amazon Ads', status:'error',     lastSync:'3 days ago', dataPoints:'Token expired',  tier:'sage-2',  icon:'Am' },
+  { platform:'Klaviyo',    status:'disconnected', lastSync:'—',        dataPoints:'Not connected',  tier:'sage-3',  icon:'K' },
 ];
+
+const PLATFORM_TILE_BG = {
+  'accent':  'linear-gradient(135deg, oklch(94% 0.19 115), oklch(78% 0.16 115))',
+  'sage-1':  'linear-gradient(135deg, oklch(88% 0.03 170), oklch(68% 0.03 170))',
+  'sage-2':  'linear-gradient(135deg, oklch(75% 0.02 170), oklch(55% 0.02 170))',
+  'sage-3':  'linear-gradient(135deg, oklch(60% 0.02 170), oklch(45% 0.01 170))',
+};
 
 const SIDEBAR = [
   { section:'GALTON', items:[
@@ -192,14 +199,14 @@ function Icon({ name, size=16 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24">{paths[name]}</svg>;
 }
 
-function AvatarDot({ initials='DP', size=32, hue=120 }) {
+function AvatarDot({ initials='DP', size=32 }) {
   return (
     <div style={{
       width:size, height:size, borderRadius:'50%',
-      background:`linear-gradient(135deg, oklch(78% 0.08 ${hue}), oklch(55% 0.05 ${hue}))`,
+      background:'linear-gradient(135deg, oklch(82% 0.03 170), oklch(60% 0.03 170))',
       display:'flex', alignItems:'center', justifyContent:'center',
-      color:'oklch(22% 0.03 120)', fontSize:size*0.38, fontWeight:600,
-      border:'1.5px solid oklch(85% 0.02 120 / 0.6)', flexShrink:0,
+      color:'oklch(22% 0.03 170)', fontSize:size*0.38, fontWeight:600,
+      border:'1.5px solid oklch(95% 0.01 170 / 0.4)', flexShrink:0,
     }}>{initials}</div>
   );
 }
@@ -280,7 +287,7 @@ function Sidebar({ activeView, onNav }) {
       {/* User */}
       <div style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 8px',
         borderTop:'1px solid var(--line)', paddingTop:14 }}>
-        <AvatarDot initials="DP" hue={140} size={32} />
+        <AvatarDot initials="DP" size={32} />
         <div style={{ flex:1 }}>
           <div style={{ fontSize:12.5, fontWeight:600 }}>Daniel P.</div>
           <div style={{ fontSize:10.5, color:'var(--ink-soft)' }}>Owner</div>
@@ -435,8 +442,9 @@ function KPITile({ kpi, selected, onClick }) {
       )}
       {kpi.status && (
         <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:4, fontSize:11,
-          color:'oklch(80% 0.12 140)' }}>
-          <span style={{ width:7, height:7, borderRadius:'50%', background:'oklch(70% 0.15 140)' }} />
+          color:'var(--accent)' }}>
+          <span style={{ width:7, height:7, borderRadius:'50%', background:'var(--accent)',
+            boxShadow:'0 0 6px var(--accent-glow)' }} />
           {kpi.status}
         </div>
       )}
@@ -600,17 +608,22 @@ function ChannelView({ selectedKpi, setSelectedKpi }) {
         <Panel>
           <PanelHeader title="Channel Contribution" subtitle="Weekly spend allocation — last 12 weeks"
             right={<div style={{ display:'flex', gap:12, fontSize:11, flexWrap:'wrap' }}>
-              {[{k:'meta',c:'oklch(85% 0.18 260)',l:'Meta'},{k:'google',c:'oklch(85% 0.18 40)',l:'Google'},{k:'tiktok',c:'var(--accent)',l:'TikTok'},{k:'amazon',c:'oklch(78% 0.12 30)',l:'Amazon'}].map(s => (
+              {[
+                {k:'meta',   c:'oklch(88% 0.03 170)', l:'Meta'},
+                {k:'google', c:'oklch(72% 0.03 170)', l:'Google'},
+                {k:'tiktok', c:'var(--accent)',       l:'TikTok'},
+                {k:'amazon', c:'oklch(52% 0.02 170)', l:'Amazon'},
+              ].map(s => (
                 <span key={s.k} style={{ display:'flex', alignItems:'center', gap:5 }}>
                   <span style={{ width:10, height:10, background:s.c, borderRadius:2 }}/>{s.l}</span>
               ))}
             </div>} />
           <StackedBars width={640} height={230} groups={CHANNEL_CONTRIB}
             stackKeys={[
-              { key:'meta',   color:'oklch(85% 0.18 260)' },
-              { key:'google', color:'oklch(85% 0.18 40)' },
+              { key:'meta',   color:'oklch(88% 0.03 170)' },
+              { key:'google', color:'oklch(72% 0.03 170)' },
               { key:'tiktok', color:'var(--accent)' },
-              { key:'amazon', color:'oklch(78% 0.12 30)' },
+              { key:'amazon', color:'oklch(52% 0.02 170)' },
             ]}
             xLabels={WEEKS} yTicks={[10000,30000,50000,70000]} />
         </Panel>
@@ -658,11 +671,11 @@ function CustomerView({ selectedKpi, setSelectedKpi }) {
 // ───── Experiment Lab view ────────────────────────────────────────
 function ExperimentView({ selectedKpi, setSelectedKpi }) {
   const patternColors = {
-    anchor:       'oklch(60% 0.18 30)',
-    delayed_drag: 'oklch(75% 0.16 60)',
-    waste:        'oklch(85% 0.18 140)',
-    priming:      'var(--accent)',
-    irrelevant:   'oklch(70% 0.01 200)',
+    anchor:       'var(--accent)',
+    delayed_drag: 'oklch(75% 0.06 70)',
+    waste:        'oklch(88% 0.03 170)',
+    priming:      'oklch(90% 0.12 115)',
+    irrelevant:   'var(--ink-soft)',
   };
   const patternLabel = { anchor:'Anchor', delayed_drag:'Delayed drag', waste:'Waste', priming:'Priming', irrelevant:'Irrelevant' };
   return (
@@ -714,7 +727,7 @@ function ExperimentView({ selectedKpi, setSelectedKpi }) {
                   <span style={{ fontWeight:600 }}>{patternLabel[exp.pattern]}</span>
                 </div>
                 <div className="mono" style={{ fontSize:13, fontWeight:600,
-                  color: exp.lift > 0 ? 'oklch(85% 0.18 140)' : exp.lift < 0 ? 'oklch(75% 0.15 30)' : 'var(--ink-soft)' }}>
+                  color: exp.lift > 0 ? 'var(--accent)' : exp.lift < 0 ? 'oklch(75% 0.06 70)' : 'var(--ink-soft)' }}>
                   {exp.lift > 0 ? '+' : ''}{exp.lift}%
                 </div>
                 <div className="mono" style={{ fontSize:12, color:'var(--ink-2)' }}>{exp.confidence}%</div>
@@ -733,9 +746,9 @@ function ExperimentView({ selectedKpi, setSelectedKpi }) {
 // ───── Connections view ───────────────────────────────────────────
 function ConnectionsView() {
   const statusColors = {
-    connected:    { bg:'oklch(94% 0.15 105 / 0.18)', bd:'oklch(94% 0.18 105 / 0.5)', ink:'var(--accent)', dot:'oklch(70% 0.2 140)' },
-    error:        { bg:'oklch(75% 0.12 30 / 0.18)',  bd:'oklch(75% 0.15 30 / 0.5)',  ink:'oklch(80% 0.15 30)', dot:'oklch(65% 0.2 30)' },
-    disconnected: { bg:'oklch(70% 0.01 200 / 0.15)', bd:'oklch(60% 0.01 200 / 0.4)', ink:'var(--ink-soft)', dot:'oklch(60% 0 0)' },
+    connected:    { bg:'oklch(94% 0.15 115 / 0.18)', bd:'oklch(94% 0.18 115 / 0.5)', ink:'var(--accent)',   dot:'var(--accent)' },
+    error:        { bg:'oklch(75% 0.06 70 / 0.25)',  bd:'oklch(75% 0.08 70 / 0.55)', ink:'oklch(88% 0.06 70)', dot:'oklch(75% 0.08 70)' },
+    disconnected: { bg:'oklch(82% 0.01 170 / 0.25)', bd:'oklch(60% 0.01 170 / 0.4)', ink:'var(--ink-soft)', dot:'var(--ink-soft)' },
   };
   return (
     <>
@@ -753,10 +766,10 @@ function ConnectionsView() {
                   <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                     <div style={{
                       width:40, height:40, borderRadius:10,
-                      background:`linear-gradient(135deg, oklch(78% 0.1 ${c.hue}), oklch(55% 0.06 ${c.hue}))`,
+                      background: PLATFORM_TILE_BG[c.tier] || PLATFORM_TILE_BG['sage-2'],
                       display:'flex', alignItems:'center', justifyContent:'center',
-                      color:'oklch(22% 0.03 120)', fontSize:14, fontWeight:700,
-                      border:'1.5px solid oklch(85% 0.02 120 / 0.6)',
+                      color:'oklch(22% 0.03 170)', fontSize:14, fontWeight:700,
+                      border:'1.5px solid oklch(95% 0.01 170 / 0.4)',
                     }}>{c.icon}</div>
                     <div>
                       <div style={{ fontSize:15, fontWeight:600 }}>{c.platform}</div>
