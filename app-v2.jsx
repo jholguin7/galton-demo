@@ -5,14 +5,22 @@ const { useState, useEffect, useMemo, useRef } = React;
 
 // ───── Data: Overview ─────────────────────────────────────────────
 const KPIS = [
-  { id:'mer',    label:'Blended MER', value:'5.8x',  delta:'+0.4x vs prior', trend:'up',   note:'Revenue / Ad Spend' },
-  { id:'cmer',   label:'CMER',        value:'2.3x',  delta:'+0.2x vs prior', trend:'up',   note:'Contribution Margin / Spend', active:true },
-  { id:'cm',     label:'Contribution Margin', value:'$142K', delta:'+12% vs prior', trend:'up',  note:'Revenue − COGS − Discounts' },
-  { id:'spend',  label:'Total Ad Spend', value:'$61.9K', delta:'−3% vs prior', trend:'down', note:'Meta + Google + TikTok + Amazon' },
-  { id:'orders', label:'Orders', value:'1,847', delta:'+8% vs prior', trend:'up' },
-  { id:'aov',    label:'AOV', value:'$127', delta:'+$4 vs prior', trend:'up' },
-  { id:'cac',    label:'New Customer CAC', value:'$48', delta:'−$6 vs prior', trend:'up' },
-  { id:'ltvcac', label:'LTV : CAC', value:'3.2x', delta:'+0.3x vs prior', trend:'up', status:'Healthy' },
+  { id:'mer',    label:'Blended MER', value:'5.8x',  delta:'+0.4x vs prior', trend:'up',   note:'Revenue / Ad Spend',
+    help:'Marketing Efficiency Ratio = total revenue ÷ total ad spend. "Blended" means across all paid channels. A 5.8x ratio means you generate $5.80 in revenue for every $1 spent on ads.' },
+  { id:'cmer',   label:'CMER',        value:'2.3x',  delta:'+0.2x vs prior', trend:'up',   note:'Contribution Margin / Spend', active:true,
+    help:'Contribution MER — same as MER but uses contribution margin (revenue minus COGS) instead of top-line revenue. Anything above 1.0x means ads are profitable after product costs. The profit-aware version of MER.' },
+  { id:'cm',     label:'Contribution Margin', value:'$142K', delta:'+12% vs prior', trend:'up',  note:'Revenue − COGS − Discounts',
+    help:'Revenue minus COGS and discounts. What\'s left over to cover ads, operations, and profit. The number that actually pays the bills.' },
+  { id:'spend',  label:'Total Ad Spend', value:'$61.9K', delta:'−3% vs prior', trend:'down', note:'Meta + Google + TikTok + Amazon',
+    help:'Combined ad spend across all 4 paid channels (Meta, Google, TikTok, Amazon). Excludes organic, email, and affiliate.' },
+  { id:'orders', label:'Orders', value:'1,847', delta:'+8% vs prior', trend:'up',
+    help:'Total completed orders on Shopify for the selected date range. Includes all channels — paid and organic.' },
+  { id:'aov',    label:'AOV', value:'$127', delta:'+$4 vs prior', trend:'up',
+    help:'Average Order Value = total revenue ÷ order count. Higher usually means better, but watch for repeat rate trade-offs when AOV grows from upsells.' },
+  { id:'cac',    label:'New Customer CAC', value:'$48', delta:'−$6 vs prior', trend:'up',
+    help:'Customer Acquisition Cost — total ad spend divided by new customers acquired. Lower is better. Compare to LTV to know if you\'re making money per customer.' },
+  { id:'ltvcac', label:'LTV : CAC', value:'3.2x', delta:'+0.3x vs prior', trend:'up', status:'Healthy',
+    help:'Predicted customer lifetime value divided by acquisition cost. Below 1x = losing money per customer. 3x+ is healthy. 5x+ means you should spend more on growth — you\'re leaving money on the table.' },
 ];
 
 const WEEKS = ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'];
@@ -44,10 +52,14 @@ const INSIGHTS = [
 
 // ───── Data: Channel Intelligence ────────────────────────────────
 const CHANNEL_KPIS = [
-  { id:'meta',   label:'Meta',        value:'3.1x',  delta:'+0.2x vs prior', trend:'up',   note:'iROAS (incremental)' },
-  { id:'google', label:'Google Ads',  value:'1.2x',  delta:'−0.3x vs prior', trend:'down', note:'iROAS — near saturation' },
-  { id:'tiktok', label:'TikTok',      value:'2.9x',  delta:'+0.8x vs prior', trend:'up',   note:'iROAS — underinvested', active:true },
-  { id:'amazon', label:'Amazon Ads',  value:'1.8x',  delta:'+0.1x vs prior', trend:'up',   note:'iROAS' },
+  { id:'meta',   label:'Meta',        value:'3.1x',  delta:'+0.2x vs prior', trend:'up',   note:'iROAS (incremental)',
+    help:'iROAS (incremental Return on Ad Spend) measures what Meta ACTUALLY drove — not just clicks that would have converted anyway. 3.1x means $3.10 of causal revenue per $1 spent. This is what your MMM model estimates, not what the platform claims.' },
+  { id:'google', label:'Google Ads',  value:'1.2x',  delta:'−0.3x vs prior', trend:'down', note:'iROAS — near saturation',
+    help:'Google\'s incremental ROAS. 1.2x is near break-even after accounting for margin — marginal dollars aren\'t pulling their weight. Time to reduce spend or shift to better-performing channels.' },
+  { id:'tiktok', label:'TikTok',      value:'2.9x',  delta:'+0.8x vs prior', trend:'up',   note:'iROAS — underinvested', active:true,
+    help:'TikTok\'s incremental ROAS — your strongest channel by causal impact. The 0.8x improvement vs prior period suggests scaling headroom. See Saturation Curves below to estimate the ceiling.' },
+  { id:'amazon', label:'Amazon Ads',  value:'1.8x',  delta:'+0.1x vs prior', trend:'up',   note:'iROAS',
+    help:'Amazon Ads iROAS. Attribution confidence is typically lower here due to Amazon\'s walled-garden tracking. Treat as directional rather than exact.' },
 ];
 const CHANNEL_CONTRIB = WEEKS.map((w,i) => ({
   key:w,
@@ -74,14 +86,22 @@ const CHANNEL_INSIGHTS = [
 
 // ───── Data: Customer Health ─────────────────────────────────────
 const CUSTOMER_KPIS = [
-  { id:'ltv',       label:'Avg LTV (12mo)',   value:'$412', delta:'+$24 vs prior', trend:'up', note:'Predicted 12-month value' },
-  { id:'ccac',      label:'CAC',              value:'$48',  delta:'−$6 vs prior',   trend:'up',   note:'New customer acquisition cost' },
-  { id:'ltvcac2',   label:'LTV : CAC',        value:'8.6x', delta:'+1.1x vs prior', trend:'up', note:'> 3x is healthy', active:true },
-  { id:'repeat',    label:'Repeat Rate',      value:'28%',  delta:'+3% vs prior',  trend:'up',   note:'Customers with 2+ orders' },
-  { id:'new_share', label:'New Customer %',   value:'42%',  delta:'−2% vs prior',  trend:'down', note:'Revenue from new customers' },
-  { id:'churn',     label:'90-day Churn',     value:'18%',  delta:'−2% vs prior',   trend:'up',  note:'Lower is better' },
-  { id:'aov2',      label:'New Customer AOV', value:'$89',  delta:'+$4 vs prior',  trend:'up' },
-  { id:'reord',     label:'Days to Reorder',  value:'47',   delta:'−3 days',        trend:'up' },
+  { id:'ltv',       label:'Avg LTV (12mo)',   value:'$412', delta:'+$24 vs prior', trend:'up', note:'Predicted 12-month value',
+    help:'Predicted total revenue per customer over the next 12 months. Calculated with BG/NBD + Gamma-Gamma models (the industry standard for repeat-purchase prediction). Updates as you get more data on a customer.' },
+  { id:'ccac',      label:'CAC',              value:'$48',  delta:'−$6 vs prior',   trend:'up',   note:'New customer acquisition cost',
+    help:'Customer Acquisition Cost — what you paid in ads per new customer acquired. Total ad spend ÷ new customers. Compare with LTV to see if each new customer is profitable.' },
+  { id:'ltvcac2',   label:'LTV : CAC',        value:'8.6x', delta:'+1.1x vs prior', trend:'up', note:'> 3x is healthy', active:true,
+    help:'Ratio of predicted lifetime value to acquisition cost. Below 1x = losing money. 3x+ = healthy. 8.6x is exceptional — top decile. At this ratio you could spend much more on acquisition and still be highly profitable.' },
+  { id:'repeat',    label:'Repeat Rate',      value:'28%',  delta:'+3% vs prior',  trend:'up',   note:'Customers with 2+ orders',
+    help:'% of customers who have made 2 or more orders. Above 25% is typically healthy ecommerce. A rising repeat rate usually means your retention efforts (email, loyalty, product quality) are working.' },
+  { id:'new_share', label:'New Customer %',   value:'42%',  delta:'−2% vs prior',  trend:'down', note:'Revenue from new customers',
+    help:'Share of revenue coming from first-time buyers. Balance with retention: too high = dependent on acquisition; too low = stalled growth. Healthy ecommerce usually runs 30-50%.' },
+  { id:'churn',     label:'90-day Churn',     value:'18%',  delta:'−2% vs prior',   trend:'up',  note:'Lower is better',
+    help:'% of customers who made a purchase 90 days ago but haven\'t returned since. Lower is better. Benchmark against your replenishment cycle — if your product has a 60-day use life, 90-day churn under 20% is excellent.' },
+  { id:'aov2',      label:'New Customer AOV', value:'$89',  delta:'+$4 vs prior',  trend:'up',
+    help:'Average order value on first purchase. Usually lower than overall AOV because new customers test before committing. Watch the trend: if it rises, your top-of-funnel targeting is attracting higher-intent buyers.' },
+  { id:'reord',     label:'Days to Reorder',  value:'47',   delta:'−3 days',        trend:'up',
+    help:'Median time between first and second purchase. Shorter usually means stronger product-market fit or better re-engagement. A falling trend (like −3 days here) means customers are coming back faster.' },
 ];
 const LTV_DISTRIBUTION = {
   bins: ['$0', '$100', '$250', '$500', '$1K', '$2K', '$5K+'],
@@ -103,10 +123,14 @@ const CUSTOMER_INSIGHTS = [
 
 // ───── Data: Experiment Lab ──────────────────────────────────────
 const EXP_KPIS = [
-  { id:'active',  label:'Active Experiments', value:'3',    delta:'+1 vs prior', trend:'up', note:'Currently running' },
-  { id:'complete',label:'Completed',          value:'12',   delta:'+4 vs prior', trend:'up', note:'Last 90 days' },
-  { id:'lift',    label:'Avg Incremental Lift', value:'+18%', delta:'+3% vs prior', trend:'up', note:'Across completed tests', active:true },
-  { id:'conf',    label:'Avg Confidence',     value:'92%',  delta:'stable',       trend:'up', note:'Statistical confidence' },
+  { id:'active',  label:'Active Experiments', value:'3',    delta:'+1 vs prior', trend:'up', note:'Currently running',
+    help:'Experiments still collecting data. Minimum 2 weeks needed for statistical significance — most run 2-4 weeks.' },
+  { id:'complete',label:'Completed',          value:'12',   delta:'+4 vs prior', trend:'up', note:'Last 90 days',
+    help:'Experiments finished in the last 90 days with actionable results. Each one generated a causal lift estimate you can act on.' },
+  { id:'lift',    label:'Avg Incremental Lift', value:'+18%', delta:'+3% vs prior', trend:'up', note:'Across completed tests', active:true,
+    help:'Average causal impact across all completed experiments — the real business effect, measured via synthetic control. Much more reliable than platform-reported ROAS, which often overstates attribution.' },
+  { id:'conf',    label:'Avg Confidence',     value:'92%',  delta:'stable',       trend:'up', note:'Statistical confidence',
+    help:'Statistical confidence that the measured effects are real (not random noise). Below 80% = directional only. 95%+ = act on it. 92% is strong for a marketing context.' },
 ];
 const EXPERIMENTS = [
   { name:'Meta ad killed (audience X)', pattern:'anchor', lift:-12, confidence:97, status:'complete',
@@ -132,13 +156,20 @@ const EXP_INSIGHTS = [
 
 // ───── Data: Connections ─────────────────────────────────────────
 const CONNECTIONS = [
-  { platform:'Shopify',    status:'connected', lastSync:'2 min ago',  dataPoints:'1,847 orders',  tier:'accent',   icon:'Sh' },
-  { platform:'Meta Ads',   status:'connected', lastSync:'5 min ago',  dataPoints:'$18.2K spend',  tier:'sage-1',   icon:'M' },
-  { platform:'Google Ads', status:'connected', lastSync:'6 min ago',  dataPoints:'$15.8K spend',  tier:'sage-2',   icon:'G' },
-  { platform:'TikTok',     status:'connected', lastSync:'4 min ago',  dataPoints:'$12.4K spend',  tier:'accent',   icon:'T' },
-  { platform:'GA4',        status:'connected', lastSync:'8 min ago',  dataPoints:'28,491 sessions', tier:'sage-1', icon:'GA' },
-  { platform:'Amazon Ads', status:'error',     lastSync:'3 days ago', dataPoints:'Token expired',  tier:'sage-2',  icon:'Am' },
-  { platform:'Klaviyo',    status:'disconnected', lastSync:'—',        dataPoints:'Not connected',  tier:'sage-3',  icon:'K' },
+  { platform:'Shopify',    status:'connected', lastSync:'2 min ago',  dataPoints:'1,847 orders',  tier:'accent',   icon:'Sh',
+    help:'Source of truth for revenue. We pull orders, customers, and product data. Used for AOV, LTV, cohort retention, and all order-level metrics across the dashboard.' },
+  { platform:'Meta Ads',   status:'connected', lastSync:'5 min ago',  dataPoints:'$18.2K spend',  tier:'sage-1',   icon:'M',
+    help:'Facebook + Instagram ad spend, impressions, clicks, and platform-reported conversions. We re-attribute these to our MMM model for accurate iROAS — platform ROAS typically overstates.' },
+  { platform:'Google Ads', status:'connected', lastSync:'6 min ago',  dataPoints:'$15.8K spend',  tier:'sage-2',   icon:'G',
+    help:'Google Search + YouTube + Display ad spend and performance. Includes brand and non-brand campaigns separately (brand is often incremental waste — we flag it).' },
+  { platform:'TikTok',     status:'connected', lastSync:'4 min ago',  dataPoints:'$12.4K spend',  tier:'accent',   icon:'T',
+    help:'TikTok Ads Manager data — spend, CPM, and conversion events. Attribution is trickier on TikTok; MMM gives a more honest read than platform-reported ROAS.' },
+  { platform:'GA4',        status:'connected', lastSync:'8 min ago',  dataPoints:'28,491 sessions', tier:'sage-1', icon:'GA',
+    help:'Google Analytics 4 — session counts, user paths, and last-click attribution. Used as a sanity check on platform-reported performance and to build funnel-analysis click share.' },
+  { platform:'Amazon Ads', status:'error',     lastSync:'3 days ago', dataPoints:'Token expired',  tier:'sage-2',  icon:'Am',
+    help:'Amazon Sponsored Products, Brands, and Display. This connection has an expired OAuth token — click Reconnect to restore. Without Amazon data, your iROAS model loses 15-20% of attribution signal.' },
+  { platform:'Klaviyo',    status:'disconnected', lastSync:'—',        dataPoints:'Not connected',  tier:'sage-3',  icon:'K',
+    help:'Email marketing metrics — list size, flows, campaign performance. Not connected yet. Once linked, we can include email revenue in your MER calculation and track email-driven retention.' },
 ];
 
 const PLATFORM_TILE_BG = {
@@ -429,8 +460,11 @@ function KPITile({ kpi, selected, onClick, index=0 }) {
       animationDelay: `${index * 40}ms`,
     }}>
       <div style={{ position:'relative', zIndex:1 }}>
-      <div className="mono" style={{ fontSize:10.5, color:'var(--ink-2)', letterSpacing:1.3, textTransform:'uppercase', fontWeight:600 }}>
-        {kpi.label}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
+        <div className="mono" style={{ fontSize:10.5, color:'var(--ink-2)', letterSpacing:1.3, textTransform:'uppercase', fontWeight:600, flex:1 }}>
+          {kpi.label}
+        </div>
+        {kpi.help && <div onClick={(e) => e.stopPropagation()}><HelpTip text={kpi.help} /></div>}
       </div>
       <div style={{ fontSize:30, fontWeight:300, letterSpacing:-1.2, marginTop:6, lineHeight:1 }}>
         {kpi.value}
@@ -845,14 +879,17 @@ function ConnectionsView() {
                       <div style={{ fontSize:11, color:'var(--ink-soft)', marginTop:2 }}>{c.dataPoints}</div>
                     </div>
                   </div>
-                  <div style={{
-                    display:'flex', alignItems:'center', gap:5,
-                    background:s.bg, border:`1px solid ${s.bd}`,
-                    borderRadius:100, padding:'4px 10px', fontSize:10.5, fontWeight:600,
-                    color:s.ink, textTransform:'capitalize',
-                  }}>
-                    <span style={{ width:6, height:6, borderRadius:'50%', background:s.dot }} />
-                    {c.status}
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{
+                      display:'flex', alignItems:'center', gap:5,
+                      background:s.bg, border:`1px solid ${s.bd}`,
+                      borderRadius:100, padding:'4px 10px', fontSize:10.5, fontWeight:600,
+                      color:s.ink, textTransform:'capitalize',
+                    }}>
+                      <span style={{ width:6, height:6, borderRadius:'50%', background:s.dot }} />
+                      {c.status}
+                    </div>
+                    {c.help && <HelpTip text={c.help} />}
                   </div>
                 </div>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:18, paddingTop:14,
