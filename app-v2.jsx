@@ -256,6 +256,7 @@ function Sidebar({ activeView, onNav }) {
                 <button key={it.id}
                   onClick={() => !it.disabled && onNav(it.id)}
                   disabled={it.disabled}
+                  className="nav-item"
                   style={{
                     display:'flex', alignItems:'center', gap:10,
                     padding:'8px 10px', borderRadius:10, fontSize:13,
@@ -266,7 +267,6 @@ function Sidebar({ activeView, onNav }) {
                     border: isActive ? '1px solid var(--line)' : '1px solid transparent',
                     opacity: it.disabled ? 0.5 : 1,
                     cursor: it.disabled ? 'not-allowed' : 'pointer',
-                    transition:'background 120ms, color 120ms',
                 }}>
                   <Icon name={it.icon} size={15} />
                   <span style={{ flex:1 }}>{it.label}</span>
@@ -334,7 +334,7 @@ function Header({ viewMeta }) {
   const [compare, setCompare] = useState('vs. Prior period');
 
   return (
-    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0 22px' }}>
+    <div className="gl-fade" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0 22px' }}>
       <div>
         <div style={{ fontSize:22, fontWeight:600, letterSpacing:-0.3, color:'#fff' }}>{viewMeta.title}</div>
         <div style={{ fontSize:13, color:'rgba(255,255,255,0.65)', marginTop:2, fontWeight:400, letterSpacing:0 }}>{viewMeta.subtitle}</div>
@@ -342,7 +342,7 @@ function Header({ viewMeta }) {
       <div style={{ display:'flex', alignItems:'center', gap:10 }}>
         {/* Date range */}
         <div style={{ position:'relative' }}>
-          <button onClick={() => setDateOpen(o => !o)} style={{
+          <button onClick={() => setDateOpen(o => !o)} className="pill-hover" style={{
             display:'flex', alignItems:'center', gap:8,
             background:'var(--surface-3)', border:'1px solid var(--line)',
             borderRadius:100, padding:'8px 14px', fontSize:12.5, fontWeight:500,
@@ -369,7 +369,7 @@ function Header({ viewMeta }) {
         </div>
         {/* Compare */}
         <div style={{ position:'relative' }}>
-          <button onClick={() => setCompareOpen(o => !o)} style={{
+          <button onClick={() => setCompareOpen(o => !o)} className="pill-hover" style={{
             display:'flex', alignItems:'center', gap:8,
             background:'var(--surface-3)', border:'1px solid var(--line)',
             borderRadius:100, padding:'8px 14px', fontSize:12.5, fontWeight:500,
@@ -407,14 +407,15 @@ function Header({ viewMeta }) {
 }
 
 // ───── KPI tile ────────────────────────────────────────────────────
-function KPITile({ kpi, selected, onClick }) {
+function KPITile({ kpi, selected, onClick, index=0 }) {
   const isDown = kpi.trend === 'down';
   const isActive = selected || kpi.active;
   const deltaColor = (kpi.label === 'Total Ad Spend' && isDown) || (kpi.trend === 'up') ? 'var(--ink)' : 'var(--ink-soft)';
   return (
     <div
       onClick={onClick}
-      className="liquid-glass" style={{
+      className={`liquid-glass gl-rise hover-raise-strong ${isActive ? 'kpi-active' : ''}`}
+      style={{
       background:'var(--surface-2)',
       backdropFilter:'blur(30px)',
       border: isActive ? '1.5px solid var(--accent)' : '1px solid var(--line)',
@@ -424,7 +425,8 @@ function KPITile({ kpi, selected, onClick }) {
       position:'relative',
       minHeight:110,
       cursor: onClick ? 'pointer' : 'default',
-      transition:'border-color 140ms, box-shadow 140ms',
+      transition:'border-color 180ms ease-out, box-shadow 240ms ease-out, transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms ease-out',
+      animationDelay: `${index * 40}ms`,
     }}>
       <div style={{ position:'relative', zIndex:1 }}>
       <div className="mono" style={{ fontSize:10.5, color:'var(--ink-2)', letterSpacing:1.3, textTransform:'uppercase', fontWeight:600 }}>
@@ -454,15 +456,16 @@ function KPITile({ kpi, selected, onClick }) {
 }
 
 // ───── Panel ──────────────────────────────────────────────────────
-function Panel({ children, style }) {
+function Panel({ children, style, delay=0 }) {
   return (
-    <div className="liquid-glass" style={{
+    <div className="liquid-glass gl-rise hover-raise" style={{
       background:'var(--surface-2)',
       backdropFilter:'blur(30px)',
       border:'1px solid var(--line)',
       borderRadius:20,
       padding:20,
       position:'relative',
+      animationDelay: `${delay}ms`,
       ...style,
     }}>
       <div style={{ position:'relative', zIndex:1 }}>{children}</div>
@@ -491,12 +494,12 @@ function ChartLegend({ series, hidden, onToggle }) {
         return (
           <button key={s.key}
             onClick={() => onToggle(s.key)}
+            className="legend-item"
             style={{
               display:'flex', alignItems:'center', gap:5,
               background:'transparent', padding:0, cursor:'pointer',
               opacity: isHidden ? 0.35 : 1,
               textDecoration: isHidden ? 'line-through' : 'none',
-              transition:'opacity 120ms',
             }}>
             <span style={{
               width:14, height:2, background: s.color, borderRadius:1,
@@ -526,25 +529,25 @@ function OverviewView({ selectedKpi, setSelectedKpi }) {
   return (
     <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:14 }}>
-        {KPIS.map(k => <KPITile key={k.id} kpi={k}
+        {KPIS.map((k, i) => <KPITile key={k.id} kpi={k} index={i}
           selected={selectedKpi === k.id}
           onClick={() => setSelectedKpi(selectedKpi === k.id ? null : k.id)} />)}
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1.7fr 1fr', gap:14, marginTop:14 }}>
-        <Panel>
+        <Panel delay={340}>
           <PanelHeader title="MER & CMER Trend" subtitle="Last 12 weeks with comparison"
             right={<ChartLegend series={MER_SERIES} hidden={hiddenMer} onToggle={toggleSet(hiddenMer, setHiddenMer)} />} />
           <LineChart width={640} height={230} series={visibleMer} xLabels={WEEKS} yTicks={[0,2,4,6]} />
         </Panel>
-        <InsightsPanel insights={INSIGHTS} />
+        <InsightsPanel insights={INSIGHTS} delay={400} />
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginTop:14 }}>
-        <Panel>
+        <Panel delay={460}>
           <PanelHeader title="Revenue vs. Spend" subtitle="Weekly by channel — last 12 weeks"
             right={<ChartLegend series={REV_SPEND} hidden={hiddenRev} onToggle={toggleSet(hiddenRev, setHiddenRev)} />} />
           <LineChart width={640} height={230} series={visibleRev} xLabels={WEEKS} yTicks={[10000,30000,50000,70000]} />
         </Panel>
-        <Panel>
+        <Panel delay={520}>
           <PanelHeader title="New vs. Returning Revenue" subtitle="Weekly split"
             right={<div style={{ display:'flex', gap:14, fontSize:11 }}>
               <span style={{ display:'flex', alignItems:'center', gap:5 }}>
@@ -561,12 +564,12 @@ function OverviewView({ selectedKpi, setSelectedKpi }) {
   );
 }
 
-function InsightsPanel({ insights }) {
+function InsightsPanel({ insights, delay=0 }) {
   const toneBg = { good:'oklch(94% 0.15 105 / 0.18)', warn:'oklch(80% 0.02 170 / 0.35)', info:'oklch(70% 0.015 180 / 0.3)' };
   const toneBd = { good:'oklch(94% 0.18 105 / 0.5)',  warn:'oklch(60% 0.015 170 / 0.4)', info:'oklch(55% 0.015 180 / 0.35)' };
   const toneIc = { good:'check', warn:'warn', info:'info' };
   return (
-    <Panel>
+    <Panel delay={delay}>
       <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
         <div style={{ width:24, height:24, borderRadius:8, background:'var(--surface-3)',
           border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center',
@@ -577,10 +580,11 @@ function InsightsPanel({ insights }) {
       </div>
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
         {insights.map((ins, i) => (
-          <div key={i} style={{
+          <div key={i} className="insight-card gl-fade" style={{
             background:toneBg[ins.tone], border:`1px solid ${toneBd[ins.tone]}`,
             borderRadius:14, padding:'10px 12px',
             display:'flex', gap:10,
+            animationDelay: `${delay + 100 + i*80}ms`,
           }}>
             <div style={{ color:'var(--ink)', flexShrink:0, paddingTop:1 }}>
               <Icon name={toneIc[ins.tone]} size={14} />
@@ -600,7 +604,7 @@ function ChannelView({ selectedKpi, setSelectedKpi }) {
   return (
     <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:14 }}>
-        {CHANNEL_KPIS.map(k => <KPITile key={k.id} kpi={k}
+        {CHANNEL_KPIS.map((k, i) => <KPITile key={k.id} kpi={k} index={i}
           selected={selectedKpi === k.id}
           onClick={() => setSelectedKpi(selectedKpi === k.id ? null : k.id)} />)}
       </div>
@@ -647,7 +651,7 @@ function CustomerView({ selectedKpi, setSelectedKpi }) {
   return (
     <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:14 }}>
-        {CUSTOMER_KPIS.map(k => <KPITile key={k.id} kpi={k}
+        {CUSTOMER_KPIS.map((k, i) => <KPITile key={k.id} kpi={k} index={i}
           selected={selectedKpi === k.id}
           onClick={() => setSelectedKpi(selectedKpi === k.id ? null : k.id)} />)}
       </div>
@@ -681,7 +685,7 @@ function ExperimentView({ selectedKpi, setSelectedKpi }) {
   return (
     <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:14 }}>
-        {EXP_KPIS.map(k => <KPITile key={k.id} kpi={k}
+        {EXP_KPIS.map((k, i) => <KPITile key={k.id} kpi={k} index={i}
           selected={selectedKpi === k.id}
           onClick={() => setSelectedKpi(selectedKpi === k.id ? null : k.id)} />)}
       </div>
@@ -712,11 +716,13 @@ function ExperimentView({ selectedKpi, setSelectedKpi }) {
           <PanelHeader title="Recent Experiments" subtitle="Causal impact of interventions — classified by pattern" />
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {EXPERIMENTS.map((exp, i) => (
-              <div key={i} style={{
+              <div key={i} className="exp-row gl-fade" style={{
                 display:'grid', gridTemplateColumns:'1.5fr 120px 80px 80px 1.8fr',
                 gap:12, alignItems:'center',
                 padding:'12px 14px', borderRadius:12,
                 background:'var(--surface-3)', border:'1px solid var(--line)',
+                cursor:'pointer',
+                animationDelay: `${600 + i*60}ms`,
               }}>
                 <div>
                   <div style={{ fontSize:13, fontWeight:600 }}>{exp.name}</div>
@@ -753,13 +759,14 @@ function ConnectionsView() {
   return (
     <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:14 }}>
-        {CONNECTIONS.map(c => {
+        {CONNECTIONS.map((c, i) => {
           const s = statusColors[c.status];
           return (
-            <div key={c.platform} className="liquid-glass" style={{
+            <div key={c.platform} className="liquid-glass gl-rise hover-raise-strong" style={{
               background:'var(--surface-2)', border:'1px solid var(--line)',
               borderRadius:20, padding:20, position:'relative',
               backdropFilter:'blur(30px)',
+              animationDelay: `${i * 50}ms`,
             }}>
               <div style={{ position:'relative', zIndex:1 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
@@ -791,7 +798,7 @@ function ConnectionsView() {
                   <div style={{ fontSize:11, color:'var(--ink-2)' }}>
                     Last synced: <span style={{ fontWeight:600, color:'var(--ink)' }}>{c.lastSync}</span>
                   </div>
-                  <button style={{
+                  <button className="pill-hover" style={{
                     display:'flex', alignItems:'center', gap:5,
                     fontSize:11, color:'var(--ink)', padding:'4px 10px', borderRadius:100,
                     background:'var(--surface-3)', border:'1px solid var(--line)', cursor:'pointer',

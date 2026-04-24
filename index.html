@@ -105,6 +105,118 @@
     mix-blend-mode: screen;
     pointer-events:none;
   }
+
+  /* ─── Load animations ──────────────────────────────────────────── */
+  @keyframes gl-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes gl-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes gl-draw {
+    from { stroke-dashoffset: 3000; }
+    to   { stroke-dashoffset: 0; }
+  }
+  @keyframes gl-grow {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+  @keyframes gl-accent-pulse {
+    0%,100% { box-shadow: 0 0 0 3px var(--accent-glow), 0 8px 24px oklch(20% 0 0 / 0.1); }
+    50%     { box-shadow: 0 0 0 5px var(--accent-glow), 0 12px 30px oklch(20% 0 0 / 0.14); }
+  }
+
+  .gl-rise {
+    opacity: 0;
+    animation: gl-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .gl-fade {
+    opacity: 0;
+    animation: gl-fade 500ms ease-out forwards;
+  }
+  .gl-draw {
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 3000;
+    animation: gl-draw 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .gl-grow {
+    transform-origin: bottom;
+    transform: scaleY(0);
+    animation: gl-grow 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ─── Hover effects ────────────────────────────────────────────── */
+  .hover-raise {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                filter 220ms ease-out;
+    will-change: transform;
+  }
+  .hover-raise:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.03);
+  }
+  .hover-raise-strong {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                filter 220ms ease-out;
+    will-change: transform;
+  }
+  .hover-raise-strong:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.05) saturate(1.05);
+  }
+
+  /* Sidebar item subtle hover */
+  .nav-item {
+    transition: background 160ms ease-out, color 160ms ease-out, padding-left 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nav-item:not([disabled]):hover {
+    background: oklch(94% 0.015 125 / 0.25) !important;
+    color: var(--ink) !important;
+    padding-left: 12px !important;
+  }
+
+  /* Pill buttons in header */
+  .pill-hover {
+    transition: transform 180ms ease-out, background 180ms ease-out, border-color 180ms ease-out;
+  }
+  .pill-hover:hover {
+    transform: translateY(-1px);
+    background: oklch(90% 0.01 170 / 0.45) !important;
+    border-color: oklch(95% 0.01 170 / 0.45) !important;
+  }
+
+  /* Chart legend */
+  .legend-item {
+    transition: transform 140ms ease-out, opacity 140ms ease-out;
+  }
+  .legend-item:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Experiment row hover */
+  .exp-row {
+    transition: background 180ms ease-out, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .exp-row:hover {
+    background: oklch(86% 0.012 170 / 0.45) !important;
+    transform: translateX(2px);
+  }
+
+  /* Insight card hover */
+  .insight-card {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .insight-card:hover {
+    transform: translateX(2px);
+  }
+
+  /* Combined fade-in + accent pulse for active KPI tiles so animations don't conflict */
+  .gl-rise.kpi-active {
+    animation: gl-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+               gl-accent-pulse 2400ms ease-in-out 1 900ms;
+  }
 </style>
 </head>
 <body>
@@ -114,9 +226,9 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-  <script type="text/babel" src="tweaks-panel.jsx?v=6"></script>
-  <script type="text/babel" src="charts.jsx?v=6"></script>
-  <script type="text/babel" src="charts-v2.jsx?v=6"></script>
-  <script type="text/babel" src="app-v2.jsx?v=6"></script>
+  <script type="text/babel" src="tweaks-panel.jsx?v=7"></script>
+  <script type="text/babel" src="charts.jsx?v=7"></script>
+  <script type="text/babel" src="charts-v2.jsx?v=7"></script>
+  <script type="text/babel" src="app-v2.jsx?v=7"></script>
 </body>
 </html>

@@ -51,14 +51,22 @@ function LineChart({ width, height, series, xLabels, yTicks, showDots = true }) 
               <path d={d} fill="none" stroke={s.color} strokeWidth="1.8"
                 strokeLinecap="round" strokeLinejoin="round"
                 strokeDasharray={s.dashed ? '3 4' : undefined}
-                style={{ filter: s.glow ? 'drop-shadow(0 0 6px var(--accent-glow))' : 'none' }}
+                className={s.dashed ? '' : 'gl-draw'}
+                style={{
+                  filter: s.glow ? 'drop-shadow(0 0 6px var(--accent-glow))' : 'none',
+                  animationDelay: `${300 + si*180}ms`,
+                }}
                 pointerEvents="none" />
               {showDots && s.values.map((v, i) => (
                 <circle key={i} cx={px(i)} cy={py(v)} r={hoverIdx === i ? 4 : 2.6}
                   fill={hoverIdx === i ? s.color : 'var(--bg-field)'}
                   stroke={s.color} strokeWidth="1.5"
                   pointerEvents="none"
-                  style={{ transition:'r 120ms, fill 120ms' }} />
+                  className="gl-fade"
+                  style={{
+                    transition:'r 120ms, fill 120ms',
+                    animationDelay: `${1400 + i*20}ms`,
+                  }} />
               ))}
             </g>
           );
@@ -160,7 +168,10 @@ function StackedBars({ width, height, groups, stackKeys, xLabels, yTicks }) {
           let cum = 0;
           const isHover = hoverIdx === i;
           return (
-            <g key={i}>
+            <g key={i} className="gl-grow" style={{
+              transformBox:'fill-box', transformOrigin:'50% 100%',
+              animationDelay: `${500 + i*40}ms`,
+            }}>
               {stackKeys.map(k => {
                 const v = g.values[k.key];
                 const y1 = py(cum + v);
@@ -255,7 +266,11 @@ function BarChart({ width, height, bins, values }) {
         const y1 = py(v);
         const h = py(0) - y1;
         return (
-          <g key={i} onMouseEnter={() => setHoverIdx(i)} style={{ cursor:'pointer' }}>
+          <g key={i} onMouseEnter={() => setHoverIdx(i)} className="gl-grow" style={{
+            cursor:'pointer',
+            transformBox:'fill-box', transformOrigin:'50% 100%',
+            animationDelay: `${500 + i*60}ms`,
+          }}>
             <rect x={cx - barW/2} y={y1} width={barW} height={h}
               fill={hoverIdx === i ? 'var(--accent)' : 'oklch(85% 0.15 115 / 0.5)'}
               rx="3"
@@ -303,13 +318,14 @@ function CohortHeatmap({ data }) {
           {monthLabels.map((_, j) => {
             const v = row.months[j];
             return (
-              <div key={j} style={{
+              <div key={j} className="mono gl-fade" style={{
                 height:cellH, borderRadius:6,
                 background: colorFor(v),
                 border: v !== undefined ? '1px solid var(--line)' : '1px dashed var(--line)',
                 display:'flex', alignItems:'center', justifyContent:'center',
                 fontSize:11, color:'var(--ink)', fontWeight:600,
-              }} className="mono">
+                animationDelay: `${400 + (i*30) + (j*15)}ms`,
+              }}>
                 {v !== undefined ? `${v}%` : ''}
               </div>
             );
