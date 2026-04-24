@@ -473,14 +473,64 @@ function Panel({ children, style, delay=0 }) {
   );
 }
 
-function PanelHeader({ title, subtitle, right }) {
+function HelpTip({ text }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-      <div>
-        <div style={{ fontSize:15, fontWeight:600 }}>{title}</div>
-        {subtitle && <div style={{ fontSize:11, color:'var(--ink-2)', marginTop:2 }} className="serif">{subtitle}</div>}
+    <div
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onClick={() => setOpen(o => !o)}
+      style={{ position:'relative', marginLeft:8, cursor:'help' }}>
+      <div style={{
+        width:18, height:18, borderRadius:'50%',
+        background:'var(--surface-3)', border:'1px solid var(--line)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        color:'var(--ink-2)', fontSize:11, fontWeight:600,
+        transition:'border-color 160ms, color 160ms, background 160ms',
+        ...(open ? {
+          borderColor:'var(--accent)',
+          color:'var(--ink)',
+          background:'oklch(94% 0.015 115 / 0.4)',
+        } : {}),
+      }}>?</div>
+      {open && (
+        <div style={{
+          position:'absolute',
+          top:'calc(100% + 8px)',
+          right:-4,
+          zIndex:50,
+          minWidth:220, maxWidth:320,
+          background:'oklch(25% 0.01 170 / 0.95)',
+          border:'1px solid oklch(100% 0 0 / 0.15)',
+          borderRadius:10,
+          padding:'10px 12px',
+          fontSize:11.5, lineHeight:1.5,
+          color:'oklch(98% 0.004 170)',
+          backdropFilter:'blur(10px)',
+          boxShadow:'0 8px 24px oklch(0% 0 0 / 0.3)',
+          pointerEvents:'none',
+          animation:'gl-fade 140ms ease-out forwards',
+        }}>
+          {text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PanelHeader({ title, subtitle, right, help }) {
+  return (
+    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10, gap:12 }}>
+      <div style={{ display:'flex', alignItems:'flex-start', flex:1, minWidth:0 }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:15, fontWeight:600 }}>{title}</div>
+          {subtitle && <div style={{ fontSize:11, color:'var(--ink-2)', marginTop:2 }} className="serif">{subtitle}</div>}
+        </div>
       </div>
-      {right}
+      <div style={{ display:'flex', alignItems:'flex-start', gap:8 }}>
+        {right}
+        {help && <HelpTip text={help} />}
+      </div>
     </div>
   );
 }
@@ -536,6 +586,7 @@ function OverviewView({ selectedKpi, setSelectedKpi }) {
       <div style={{ display:'grid', gridTemplateColumns:'1.7fr 1fr', gap:14, marginTop:14 }}>
         <Panel delay={340}>
           <PanelHeader title="MER & CMER Trend" subtitle="Last 12 weeks with comparison"
+            help="MER (Marketing Efficiency Ratio) = total revenue ÷ ad spend. CMER uses contribution margin (revenue − COGS) instead. Higher is better. CMER above 1.0x means you're profitable after costs."
             right={<ChartLegend series={MER_SERIES} hidden={hiddenMer} onToggle={toggleSet(hiddenMer, setHiddenMer)} />} />
           <LineChart width={640} height={230} series={visibleMer} xLabels={WEEKS} yTicks={[0,2,4,6]} />
         </Panel>
@@ -544,11 +595,13 @@ function OverviewView({ selectedKpi, setSelectedKpi }) {
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginTop:14 }}>
         <Panel delay={460}>
           <PanelHeader title="Revenue vs. Spend" subtitle="Weekly by channel — last 12 weeks"
+            help="Weekly totals. Revenue = all Shopify orders. Total Spend = combined Meta + Google + TikTok + Amazon ad spend. The gap between the lines is roughly your gross contribution — bigger gap, healthier business."
             right={<ChartLegend series={REV_SPEND} hidden={hiddenRev} onToggle={toggleSet(hiddenRev, setHiddenRev)} />} />
           <LineChart width={640} height={230} series={visibleRev} xLabels={WEEKS} yTicks={[10000,30000,50000,70000]} />
         </Panel>
         <Panel delay={520}>
           <PanelHeader title="New vs. Returning Revenue" subtitle="Weekly split"
+            help="How much of each week's revenue came from first-time vs. repeat buyers. Healthy ecommerce typically sees 30-50% new and 50-70% returning. If returning drops, retention is slipping; if new drops, acquisition is slowing."
             right={<div style={{ display:'flex', gap:14, fontSize:11 }}>
               <span style={{ display:'flex', alignItems:'center', gap:5 }}>
                 <span style={{ width:10, height:10, background:'var(--accent)', borderRadius:2 }}/>New</span>
@@ -570,13 +623,16 @@ function InsightsPanel({ insights, delay=0 }) {
   const toneIc = { good:'check', warn:'warn', info:'info' };
   return (
     <Panel delay={delay}>
-      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
-        <div style={{ width:24, height:24, borderRadius:8, background:'var(--surface-3)',
-          border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center',
-          color:'var(--accent)' }}>
-          <Icon name="sparkle" size={13} />
+      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14, justifyContent:'space-between' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ width:24, height:24, borderRadius:8, background:'var(--surface-3)',
+            border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center',
+            color:'var(--accent)' }}>
+            <Icon name="sparkle" size={13} />
+          </div>
+          <div style={{ fontSize:15, fontWeight:600 }}>Galton Insights</div>
         </div>
-        <div style={{ fontSize:15, fontWeight:600 }}>Galton Insights</div>
+        <HelpTip text="Auto-generated takeaways from your data. Green = opportunity or win. Amber = caution flag. Neutral = informational. Insights update as your metrics shift — no manual analysis required." />
       </div>
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
         {insights.map((ins, i) => (
@@ -611,6 +667,7 @@ function ChannelView({ selectedKpi, setSelectedKpi }) {
       <div style={{ display:'grid', gridTemplateColumns:'1.7fr 1fr', gap:14, marginTop:14 }}>
         <Panel>
           <PanelHeader title="Channel Contribution" subtitle="Weekly spend allocation — last 12 weeks"
+            help="How your ad spend is split across platforms each week. Total bar height = total spend. Useful to see if you're balanced or over-concentrated on one channel. A shrinking slice means we're pulling spend away from that channel."
             right={<div style={{ display:'flex', gap:12, fontSize:11, flexWrap:'wrap' }}>
               {[
                 {k:'meta',   c:'oklch(88% 0.03 170)', l:'Meta'},
@@ -636,6 +693,7 @@ function ChannelView({ selectedKpi, setSelectedKpi }) {
       <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:14, marginTop:14 }}>
         <Panel>
           <PanelHeader title="Saturation Curves" subtitle="iROAS as spend increases — where each channel tops out"
+            help="Diminishing returns. Each curve shows incremental ROAS vs. spend for one channel. Where the line flattens, your next dollar stops working. A still-rising curve (like TikTok here) = room to scale. A flat curve (Google) = saturated, shift spend elsewhere."
             right={<ChartLegend series={SATURATION_CURVES} hidden={new Set()} onToggle={() => {}} />} />
           <LineChart width={1280} height={240} series={SATURATION_CURVES}
             xLabels={['$0','$5k','$10k','$15k','$20k','$25k','$30k','$35k','$40k','$45k','$50k','$55k']}
@@ -657,14 +715,16 @@ function CustomerView({ selectedKpi, setSelectedKpi }) {
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1.7fr 1fr', gap:14, marginTop:14 }}>
         <Panel>
-          <PanelHeader title="LTV Distribution" subtitle="Predicted 12-month value per customer bucket" />
+          <PanelHeader title="LTV Distribution" subtitle="Predicted 12-month value per customer bucket"
+            help="LTV = Lifetime Value. Each bar shows how many customers we predict will spend within that range over the next 12 months. A heavy left side with a long right tail is normal — most customers spend a little, a few 'whales' drive most revenue." />
           <BarChart width={640} height={230} bins={LTV_DISTRIBUTION.bins} values={LTV_DISTRIBUTION.values} />
         </Panel>
         <InsightsPanel insights={CUSTOMER_INSIGHTS} />
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:14, marginTop:14 }}>
         <Panel>
-          <PanelHeader title="Cohort Retention" subtitle="% of customers active by month since first purchase" />
+          <PanelHeader title="Cohort Retention" subtitle="% of customers active by month since first purchase"
+            help="Each row is a group of customers who first bought in that month. Each column shows the % still active N months later. Read left-to-right to see how a cohort ages. Brighter cells = stickier customers. Compare rows to see if retention is improving over time." />
           <CohortHeatmap data={COHORT_RETENTION} />
         </Panel>
       </div>
@@ -692,6 +752,7 @@ function ExperimentView({ selectedKpi, setSelectedKpi }) {
       <div style={{ display:'grid', gridTemplateColumns:'1.4fr 1fr', gap:14, marginTop:14 }}>
         <Panel>
           <PanelHeader title="Synthetic Control: Meta Ad Killed" subtitle="Actual vs. counterfactual revenue ($k)"
+            help="A 'what if we hadn't changed anything' comparison. Solid line = what actually happened after we killed this ad. Dashed line = what our model predicts would have happened without the change. The gap between them is the ad's true causal impact — not just correlation."
             right={<ChartLegend
               series={[
                 { key:'Actual', color:'var(--accent)', glow:true },
@@ -713,7 +774,8 @@ function ExperimentView({ selectedKpi, setSelectedKpi }) {
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:14, marginTop:14 }}>
         <Panel>
-          <PanelHeader title="Recent Experiments" subtitle="Causal impact of interventions — classified by pattern" />
+          <PanelHeader title="Recent Experiments" subtitle="Causal impact of interventions — classified by pattern"
+            help="Each row is an ad change we've tested. Pattern classifies the causal effect: Anchor = ad was doing real work (don't kill). Waste = killing it helped (keep off). Priming = short positive bump then normal. Delayed drag = held up then dropped. Irrelevant = no significant effect. Lift shows the measured impact." />
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {EXPERIMENTS.map((exp, i) => (
               <div key={i} className="exp-row gl-fade" style={{
