@@ -882,6 +882,8 @@ function App() {
   const TSl = window.TweakSlider;
   const TRa = window.TweakRadio;
 
+  const Flock = window.FlockCanvas;
+
   return (
     <div style={{
       minHeight:'100vh',
@@ -892,7 +894,10 @@ function App() {
       `,
       padding:20,
       display:'flex', gap:20,
+      position:'relative',
     }} data-screen-label={`Galton ${VIEW_META[activeView].title}`}>
+      {Flock && <Flock />}
+      <div style={{ position:'relative', zIndex:1, display:'flex', gap:20, width:'100%' }}>
       <Sidebar activeView={activeView} onNav={setActiveView} />
       <main style={{ flex:1, minWidth:0 }}>
         <Header viewMeta={VIEW_META[activeView]} />
@@ -902,6 +907,7 @@ function App() {
         {activeView === 'experiment'  && <ExperimentView  selectedKpi={selectedKpi} setSelectedKpi={setSelectedKpi} />}
         {activeView === 'connections' && <ConnectionsView />}
       </main>
+      </div>
 
       {T && (
         <T title="Tweaks">
