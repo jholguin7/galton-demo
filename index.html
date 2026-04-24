@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Galton — Team Statistics</title>
+<meta name="viewport" content="width=1440" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-outer: oklch(52% 0.008 170);
+    --bg-field: oklch(48% 0.008 170);
+    --surface: oklch(78% 0.012 170 / 0.45);
+    --surface-2: oklch(82% 0.01 170 / 0.35);
+    --surface-3: oklch(86% 0.008 170 / 0.3);
+    --ink: oklch(22% 0.01 230);
+    --ink-2: oklch(32% 0.01 230);
+    --ink-soft: oklch(42% 0.01 230 / 0.95);
+    --line: oklch(55% 0.008 200 / 0.22);
+    --line-2: oklch(55% 0.008 200 / 0.4);
+    --accent: oklch(94% 0.19 105);
+    --accent-ink: oklch(30% 0.10 105);
+    --accent-glow: oklch(94% 0.19 105 / 0.35);
+    --tick: oklch(94% 0.004 200 / 0.85);
+    --tick-dim: oklch(94% 0.004 200 / 0.4);
+  }
+  html,body{margin:0;padding:0;background:var(--bg-outer);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  body{min-height:100vh;}
+  *{box-sizing:border-box}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+
+  /* Liquid glass — Petr Knoll technique: layered inner shadows for
+     highlight + bevel, conic-gradient outline for refractive edge,
+     offset blurred shadow behind for depth.
+     Apply .liquid-glass to a container; effect activates via :root[data-lg="on"].
+     Intensity scales with --lg-intensity (0..1). */
+  :root[data-lg="on"] .liquid-glass{
+    --lg-border: clamp(1px, 1.2px, 2px);
+    position:relative;
+    background:
+      linear-gradient(
+        0deg,
+        oklch(100% 0 0 / var(--lg-tint, 0.15)),
+        oklch(100% 0 0 / var(--lg-tint, 0.15))
+      ),
+      var(--surface-2) !important;
+    backdrop-filter: blur(var(--lg-blur, 14px)) saturate(calc(140% + 40% * var(--lg-intensity, 1))) !important;
+    -webkit-backdrop-filter: blur(var(--lg-blur, 14px)) saturate(calc(140% + 40% * var(--lg-intensity, 1))) !important;
+    border: 0 !important;
+    box-shadow:
+      inset 0 2px 2px oklch(0% 0 0 / calc(0.06 * var(--lg-intensity, 1))),
+      inset 0 -2px 2px oklch(100% 0 0 / calc(0.55 * var(--lg-intensity, 1))),
+      inset 0 0 1.6px 4px oklch(100% 0 0 / calc(0.22 * var(--lg-intensity, 1))),
+      0 4px 2px -2px oklch(0% 0 0 / calc(0.22 * var(--lg-intensity, 1))),
+      0 22px 34px -14px oklch(0% 0 0 / calc(0.35 * var(--lg-intensity, 1))),
+      0 42px 70px -24px oklch(0% 0 0 / calc(0.22 * var(--lg-intensity, 1)));
+  }
+  /* Conic-gradient refractive outline — this is the key "real glass" cue.
+     Two opposing bright arcs on an otherwise dark edge fake the refracted
+     specular of a curved glass rim. */
+  :root[data-lg="on"] .liquid-glass::before{
+    content:'';
+    position:absolute;
+    inset: calc(-1 * var(--lg-border));
+    border-radius: inherit;
+    padding: var(--lg-border);
+    background:
+      conic-gradient(
+        from -75deg at 50% 50%,
+        oklch(0% 0 0 / calc(0.55 * var(--lg-intensity, 1))),
+        oklch(0% 0 0 / 0) 5% 40%,
+        oklch(100% 0 0 / calc(0.9 * var(--lg-intensity, 1))) 50%,
+        oklch(0% 0 0 / 0) 60% 95%,
+        oklch(0% 0 0 / calc(0.55 * var(--lg-intensity, 1)))
+      ),
+      linear-gradient(180deg,
+        oklch(100% 0 0 / calc(0.5 * var(--lg-intensity, 1))),
+        oklch(100% 0 0 / calc(0.5 * var(--lg-intensity, 1))));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events:none;
+  }
+  /* Moving specular highlight — the smeared reflection that slides across
+     real glass. Screen-blended so it reads as light, not paint. */
+  :root[data-lg="on"] .liquid-glass::after{
+    content:'';
+    position:absolute;
+    inset: var(--lg-border);
+    border-radius: inherit;
+    background: linear-gradient(
+      var(--lg-sheen-angle, -45deg),
+      oklch(100% 0 0 / 0) 0%,
+      oklch(100% 0 0 / calc(var(--lg-sheen, 0.45) * 1)) 40%,
+      oklch(100% 0 0 / calc(var(--lg-sheen, 0.45) * 1)) 50%,
+      oklch(100% 0 0 / 0) 60%
+    );
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+    mix-blend-mode: screen;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="charts.jsx"></script>
+  <script type="text/babel" src="charts-v2.jsx"></script>
+  <script type="text/babel" src="app-v2.jsx"></script>
+</body>
+</html>
