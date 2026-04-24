@@ -509,11 +509,26 @@ function Panel({ children, style, delay=0 }) {
 
 function HelpTip({ text }) {
   const [open, setOpen] = useState(false);
+  const iconRef = useRef(null);
+  const [pos, setPos] = useState({ top:0, right:0 });
+
+  const showTip = () => {
+    const rect = iconRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right - 4,
+      });
+    }
+    setOpen(true);
+  };
+
   return (
     <div
-      onMouseEnter={() => setOpen(true)}
+      ref={iconRef}
+      onMouseEnter={showTip}
       onMouseLeave={() => setOpen(false)}
-      onClick={() => setOpen(o => !o)}
+      onClick={() => open ? setOpen(false) : showTip()}
       style={{ position:'relative', marginLeft:8, cursor:'help' }}>
       <div style={{
         width:18, height:18, borderRadius:'50%',
@@ -527,12 +542,12 @@ function HelpTip({ text }) {
           background:'oklch(94% 0.015 115 / 0.4)',
         } : {}),
       }}>?</div>
-      {open && (
+      {open && ReactDOM.createPortal(
         <div style={{
-          position:'absolute',
-          top:'calc(100% + 8px)',
-          right:-4,
-          zIndex:50,
+          position:'fixed',
+          top: pos.top,
+          right: pos.right,
+          zIndex: 10000,
           minWidth:220, maxWidth:320,
           background:'oklch(25% 0.01 170 / 0.95)',
           border:'1px solid oklch(100% 0 0 / 0.15)',
@@ -546,7 +561,8 @@ function HelpTip({ text }) {
           animation:'gl-fade 140ms ease-out forwards',
         }}>
           {text}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
