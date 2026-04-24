@@ -37,7 +37,7 @@ function FlockCanvas() {
     window.addEventListener('mouseleave', onLeave);
 
     // Denser population
-    const N = 180;
+    const N = 270;
     const particles = [];
     for (let i = 0; i < N; i++) {
       const angle = Math.random() * Math.PI * 2;
