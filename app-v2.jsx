@@ -331,21 +331,35 @@ function Sidebar({ activeView, onNav }) {
 }
 
 // ───── Popover (used for date picker, period dropdown) ─────────────
-function Popover({ open, onClose, children, align='right' }) {
-  if (!open) return null;
-  return (
+function Popover({ open, onClose, children, align='right', triggerRef }) {
+  const [pos, setPos] = useState(null);
+
+  useEffect(() => {
+    if (!open || !triggerRef?.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    if (align === 'right') {
+      setPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right, left: 'auto' });
+    } else {
+      setPos({ top: rect.bottom + 6, left: rect.left, right: 'auto' });
+    }
+  }, [open, triggerRef, align]);
+
+  if (!open || !pos) return null;
+
+  return ReactDOM.createPortal(
     <>
       <div onClick={onClose} style={{
-        position:'fixed', inset:0, zIndex:40,
+        position:'fixed', inset:0, zIndex:9999,
       }}/>
       <div className="liquid-glass" style={{
-        position:'absolute', top:'calc(100% + 6px)', [align]:0, zIndex:41,
+        position:'fixed', top:pos.top, right:pos.right, left:pos.left, zIndex:10000,
         background:'var(--surface-2)', border:'1px solid var(--line)',
         borderRadius:14, padding:8, minWidth:220, backdropFilter:'blur(30px)',
       }}>
         <div style={{ position:'relative', zIndex:1 }}>{children}</div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 
@@ -363,6 +377,8 @@ function Header({ viewMeta }) {
   const [compareOpen, setCompareOpen] = useState(false);
   const [dateRange, setDateRange] = useState('Jan 15 – Apr 15, 2026');
   const [compare, setCompare] = useState('vs. Prior period');
+  const dateBtnRef = useRef(null);
+  const compareBtnRef = useRef(null);
 
   return (
     <div className="gl-fade" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0 22px' }}>
@@ -373,7 +389,7 @@ function Header({ viewMeta }) {
       <div style={{ display:'flex', alignItems:'center', gap:10 }}>
         {/* Date range */}
         <div style={{ position:'relative' }}>
-          <button onClick={() => setDateOpen(o => !o)} className="pill-hover" style={{
+          <button ref={dateBtnRef} onClick={() => setDateOpen(o => !o)} className="pill-hover" style={{
             display:'flex', alignItems:'center', gap:8,
             background:'var(--surface-3)', border:'1px solid var(--line)',
             borderRadius:100, padding:'8px 14px', fontSize:12.5, fontWeight:500,
@@ -382,7 +398,7 @@ function Header({ viewMeta }) {
             <Icon name="calendar" size={14} />
             {dateRange}
           </button>
-          <Popover open={dateOpen} onClose={() => setDateOpen(false)}>
+          <Popover open={dateOpen} onClose={() => setDateOpen(false)} triggerRef={dateBtnRef}>
             <div className="mono" style={{ fontSize:9.5, color:'var(--ink-soft)', padding:'4px 10px 6px', letterSpacing:1 }}>DATE RANGE</div>
             {DATE_RANGES.map(r => (
               <button key={r} onClick={() => { setDateRange(r === 'Custom range' ? dateRange : r); setDateOpen(false); }}
@@ -400,7 +416,7 @@ function Header({ viewMeta }) {
         </div>
         {/* Compare */}
         <div style={{ position:'relative' }}>
-          <button onClick={() => setCompareOpen(o => !o)} className="pill-hover" style={{
+          <button ref={compareBtnRef} onClick={() => setCompareOpen(o => !o)} className="pill-hover" style={{
             display:'flex', alignItems:'center', gap:8,
             background:'var(--surface-3)', border:'1px solid var(--line)',
             borderRadius:100, padding:'8px 14px', fontSize:12.5, fontWeight:500,
@@ -408,7 +424,7 @@ function Header({ viewMeta }) {
           }}>
             {compare} <Icon name="caret" size={12} />
           </button>
-          <Popover open={compareOpen} onClose={() => setCompareOpen(false)}>
+          <Popover open={compareOpen} onClose={() => setCompareOpen(false)} triggerRef={compareBtnRef}>
             <div className="mono" style={{ fontSize:9.5, color:'var(--ink-soft)', padding:'4px 10px 6px', letterSpacing:1 }}>COMPARE</div>
             {COMPARE_OPTIONS.map(o => (
               <button key={o} onClick={() => { setCompare(o); setCompareOpen(false); }}
