@@ -962,9 +962,9 @@ function App() {
     r.setProperty('--accent', `oklch(94% 0.19 ${tweaks.accentHue})`);
     r.setProperty('--accent-glow', `oklch(94% 0.19 ${tweaks.accentHue} / 0.35)`);
     r.setProperty('--accent-ink', `oklch(30% 0.10 ${tweaks.accentHue})`);
-    r.setProperty('--surface', `oklch(78% 0.012 ${tweaks.surfaceHue} / ${tweaks.surfaceOpacity/100})`);
-    r.setProperty('--surface-2', `oklch(82% 0.01 ${tweaks.surfaceHue} / ${Math.max(0.15, tweaks.surfaceOpacity/100 - 0.1)})`);
-    r.setProperty('--surface-3', `oklch(86% 0.008 ${tweaks.surfaceHue} / ${Math.max(0.1, tweaks.surfaceOpacity/100 - 0.15)})`);
+    r.setProperty('--surface', `oklch(32% 0.015 ${tweaks.surfaceHue} / ${Math.min(0.95, tweaks.surfaceOpacity/100 + 0.4)})`);
+    r.setProperty('--surface-2', `oklch(36% 0.012 ${tweaks.surfaceHue} / ${Math.min(0.9, tweaks.surfaceOpacity/100 + 0.35)})`);
+    r.setProperty('--surface-3', `oklch(40% 0.01 ${tweaks.surfaceHue} / ${Math.min(0.85, tweaks.surfaceOpacity/100 + 0.3)})`);
     r.setProperty('--bg-outer', `oklch(${tweaks.bgLightness}% ${tweaks.bgChroma/1000} ${tweaks.bgHue})`);
     r.setProperty('--bg-field', `oklch(${Math.max(20, tweaks.bgLightness-4)}% ${tweaks.bgChroma/1000} ${tweaks.bgHue})`);
     r.setProperty('--lg-intensity', String(tweaks.liquidGlassIntensity / 100));
