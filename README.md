@@ -1,5 +1,7 @@
 # Galton Dashboard — Interactive Prototype
 
+> **This repo is frozen.** Active development moved to the private monorepo `jholguin7/finch-app` (Galton is now its analytics module). This snapshot remains as a public showcase.
+
 Static mockup of the Galton analytics dashboard (by Finch).
 
 **Live demo:** https://jholguin7.github.io/galton-demo/
